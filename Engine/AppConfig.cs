@@ -47,7 +47,14 @@ internal sealed class AppConfig
     [JsonIgnore]
     public string FilePath { get; private set; } = DefaultPath;
 
-    public static string DefaultPath => Path.Combine(AppContext.BaseDirectory, "iap2loc.json");
+    /// <summary>
+    /// iap2loc.json next to the executable; on macOS ~/Library/Application Support/iap2loc,
+    /// because files written into a signed .app bundle break its signature.
+    /// </summary>
+    public static string DefaultPath => OperatingSystem.IsMacOS()
+        ? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "iap2loc", "iap2loc.json")
+        : Path.Combine(AppContext.BaseDirectory, "iap2loc.json");
 
     public static AppConfig Load(string? path)
     {
